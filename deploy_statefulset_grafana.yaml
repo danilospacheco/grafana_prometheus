@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    field.cattle.io/publicEndpoints: '[{"addresses":["10.129.174.225"],"port":32166,"protocol":"TCP","serviceName":"monitoring:grafana-np","allNodes":true}]'
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"StatefulSet","metadata":{"annotations":{},"labels":{"app":"grafana"},"name":"grafana","namespace":"monitoring"},"spec":{"podManagementPolicy":"OrderedReady","replicas":1,"revisionHistoryLimit":3,"selector":{"matchLabels":{"app":"grafana"}},"serviceName":"grafana","template":{"metadata":{"annotations":{"sidecar.istio.io/inject":"false"},"labels":{"app":"grafana"}},"spec":{"containers":[{"image":"docker.io/grafana/grafana:6.6.2","name":"grafana","ports":[{"containerPort":3000}],"volumeMounts":[{"mountPath":"/var/lib/grafana","name":"grafana-data","subPath":"grafana"}]}],"initContainers":[{"command":["sh","-c","mkdir -p /monitoring/grafana \u0026\u0026 chmod -R a+rwx /monitoring/grafana"],"image":"alpine:latest","name":"volume-mount-permissions","securityContext":{"runAsUser":0},"volumeMounts":[{"mountPath":"/monitoring","name":"grafana-data"}]}],"volumes":[{"emptyDir":{},"name":"grafana-data"}]}}}}
+  creationTimestamp: "2020-12-10T13:52:27Z"
+  generation: 1
+  labels:
+    app: grafana
+  name: grafana
+  namespace: monitoring
+  resourceVersion: "1252255344"
+  selfLink: /apis/apps/v1/namespaces/monitoring/statefulsets/grafana
+  uid: f2cf30d9-fa01-44d5-887e-5e82b82510ec
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: grafana
+  serviceName: grafana
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      creationTimestamp: null
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - image: docker.io/grafana/grafana:6.6.2
+        imagePullPolicy: IfNotPresent
+        name: grafana
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: grafana-data
+          subPath: grafana
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - mkdir -p /monitoring/grafana && chmod -R a+rwx /monitoring/grafana
+        image: alpine:latest
+        imagePullPolicy: Always
+        name: volume-mount-permissions
+        resources: {}
+        securityContext:
+          runAsUser: 0
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /monitoring
+          name: grafana-data
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: grafana-data
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+status:
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: grafana-6db9cd784f
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: grafana-6db9cd784f
+  updatedReplicas: 1
